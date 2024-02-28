@@ -1,5 +1,5 @@
 import pdfrw 
-source = "ec.pdf"
+source = "hh.pdf"
 destination = "output.pdf"
 myTemplate = pdfrw.PdfReader(source)
 MYKEY = '/Annots'
@@ -9,9 +9,8 @@ RECTKEY = '/Rect'
 SUB_KEY = '/Subtype'
 WIDGET= '/Widget'
 data = {
-    'gender': 'Male',
-    'date_of_birth':"test DOB",
-    'cell_phone':9090909
+
+    "external_practitioner": "1508065129-L2-S12"
 }
 def fill_form(source, dest, data):
     myTemplate = pdfrw.PdfReader(source)
@@ -20,22 +19,23 @@ def fill_form(source, dest, data):
         for annot in annots:
             print("annots:", annot)
             if annot[SUB_KEY] == WIDGET:
-                if annot[FIELDKEY]:
-                    key = annot[FIELDKEY][1:-1]
+                if annot['/Parent'] and annot['/Parent'][FIELDKEY]:
+                    key = annot['/Parent'][FIELDKEY][1:-1]
                     print("key:",key)
                     if key in data.keys():
                         if type(data[key]) == bool:
                             if data[key] == True:
-                                annot.update(pdfrw.PdfDict(AS=pdfrw.PdfName('Yes')))
+                                # annot.update(pdfrw.PdfDict(AS=pdfrw.PdfName('Yes')))
+                                annot.update(pdfrw.PdfDict(V='Yes'))
                         else:
-                            annot.update(pdfrw.PdfDict(AS=pdfrw.PdfName('Yes')))
+                            annot.update(pdfrw.PdfDict(AP=pdfrw.PdfName(f'{data[key]}')))
                             annot.update(pdfrw.PdfDict(V='{}'.format(data[key])))
-                            annot.update(pdfrw.PdfDict(AP=''))
+                            annot.update(pdfrw.PdfDict(AS=pdfrw.PdfName('Yes')))
     pdfrw.PdfWriter().write(dest, myTemplate)
-# fill_form(source, destination, data)
+fill_form(source, destination, data)
 
 
-import pdfrw
+# import pdfrw
 
 def fill_pdf(pdf_template, form_data, output_path):
     template_pdf = pdfrw.PdfReader(pdf_template)
@@ -60,8 +60,8 @@ def fill_pdf(pdf_template, form_data, output_path):
     pdfrw.PdfWriter().write(output_path, template_pdf)
 
 # Example usage
-json_data = { "(external_practitioner)": "1508065129-L2-S12"}
-pdf_template = "hh.pdf"  # Replace with the path to your PDF form
-output_path = "filled_form.pdf"  # Replace with the desired output path
+# json_data = { "(external_practitioner)": "1508065129-L2-S12"}
+# pdf_template = "hh.pdf"  # Replace with the path to your PDF form
+# output_path = "filled_form.pdf"  # Replace with the desired output path
 
-fill_pdf(pdf_template, json_data, output_path)
+# fill_pdf(pdf_template, json_data, output_path)
